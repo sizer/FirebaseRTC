@@ -1,14 +1,12 @@
 mdc.ripple.MDCRipple.attachTo(document.querySelector('.mdc-button'));
 
 const configuration = {
-  iceServers: [
-    {
-      urls: [
-        'stun:stun1.l.google.com:19302',
-        'stun:stun2.l.google.com:19302',
-      ],
-    },
-  ],
+  iceServers: [{
+    urls: [
+      'stun:stun1.l.google.com:19302',
+      'stun:stun2.l.google.com:19302',
+    ],
+  }, ],
   iceCandidatePoolSize: 10,
 };
 
@@ -69,7 +67,7 @@ async function createRoom() {
   roomId = roomRef.id;
   console.log(`New room created with SDP offer. Room ID: ${roomRef.id}`);
   document.querySelector(
-      '#currentRoom').innerText = `Current room is ${roomRef.id} - You are the caller!`;
+    '#currentRoom').innerText = `Current room is ${roomRef.id} - You are the caller!`;
   // Code for creating a room above
 
   peerConnection.addEventListener('track', event => {
@@ -109,13 +107,15 @@ function joinRoom() {
   document.querySelector('#joinBtn').disabled = true;
 
   document.querySelector('#confirmJoinBtn').
-      addEventListener('click', async () => {
-        roomId = document.querySelector('#room-id').value;
-        console.log('Join room: ', roomId);
-        document.querySelector(
-            '#currentRoom').innerText = `Current room is ${roomId} - You are the callee!`;
-        await joinRoomById(roomId);
-      }, {once: true});
+  addEventListener('click', async () => {
+    roomId = document.querySelector('#room-id').value;
+    console.log('Join room: ', roomId);
+    document.querySelector(
+      '#currentRoom').innerText = `Current room is ${roomId} - You are the callee!`;
+    await joinRoomById(roomId);
+  }, {
+    once: true
+  });
   roomDialog.open();
 }
 
@@ -185,8 +185,10 @@ async function joinRoomById(roomId) {
 }
 
 async function openUserMedia(e) {
-  const stream = await navigator.mediaDevices.getUserMedia(
-      {video: true, audio: true});
+  const stream = await navigator.mediaDevices.getUserMedia({
+    video: true,
+    audio: false // to ignore howling
+  });
   document.querySelector('#localVideo').srcObject = stream;
   localStream = stream;
   remoteStream = new MediaStream();
@@ -242,7 +244,7 @@ async function hangUp(e) {
 function registerPeerConnectionListeners() {
   peerConnection.addEventListener('icegatheringstatechange', () => {
     console.log(
-        `ICE gathering state changed: ${peerConnection.iceGatheringState}`);
+      `ICE gathering state changed: ${peerConnection.iceGatheringState}`);
   });
 
   peerConnection.addEventListener('connectionstatechange', () => {
@@ -255,8 +257,36 @@ function registerPeerConnectionListeners() {
 
   peerConnection.addEventListener('iceconnectionstatechange ', () => {
     console.log(
-        `ICE connection state change: ${peerConnection.iceConnectionState}`);
+      `ICE connection state change: ${peerConnection.iceConnectionState}`);
   });
 }
 
 init();
+
+
+// https://github.com/FirebaseExtended/firepad
+
+
+function initFirePad() {
+  // Initialize the Firebase SDK.
+  firebase.initializeApp({
+    apiKey: '',
+    databaseURL: '',
+    projectId: ''
+  });
+
+  // Get Firebase Database reference.
+  var firepadRef = firebase.database().ref();
+
+  // Create CodeMirror (with lineWrapping on).
+  var codeMirror = CodeMirror(document.getElementById('firepad'), {
+    lineWrapping: true
+  });
+
+  // Create Firepad (with rich text toolbar and shortcuts enabled).
+  var firepad = Firepad.fromCodeMirror(firepadRef, codeMirror, {
+    richTextShortcuts: true,
+    richTextToolbar: true,
+    defaultText: 'Hello, World!'
+  });
+}
